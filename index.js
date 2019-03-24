@@ -11,7 +11,7 @@ const dbConfig = require("./dbconfig");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-const con = mysql.createConnection(dbConfig);
+const con;
 //Sessions
 app.set('trust proxy', 0) // trust first proxy
 app.use(session({
@@ -22,11 +22,26 @@ app.use(session({
   
 }))
 
-con.connect((err)=>{
-    if (err)
-        throw err;
-    console.log("Connected to mysql");
-});
+const connectDB = ()=> {
+  conn = mysql.createConnection(dbConfig); 
+  conn.connect(function(err) {             
+    if(err) {
+      console.log('error when connecting to db:', err);
+      setTimeout(connectDB, 2000); 
+    }                                     
+  });                                     
+  con.on('error', function(err) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+        connectDB();                       
+    } else {                                      
+      throw err;                                 
+    }
+  });
+}
+
+connectDB();
+
 
 //Enabling cros for localhost
 app.use(cors({
