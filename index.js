@@ -11,7 +11,7 @@ const dbConfig = require("./dbconfig");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-const con;
+let con;
 //Sessions
 app.set('trust proxy', 0) // trust first proxy
 app.use(session({
