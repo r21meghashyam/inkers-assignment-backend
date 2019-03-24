@@ -23,8 +23,8 @@ app.use(session({
 }))
 
 const connectDB = ()=> {
-  conn = mysql.createConnection(dbConfig); 
-  conn.connect(function(err) {             
+  con = mysql.createConnection(dbConfig); 
+  con.connect(function(err) {             
     if(err) {
       console.log('error when connecting to db:', err);
       setTimeout(connectDB, 2000); 
