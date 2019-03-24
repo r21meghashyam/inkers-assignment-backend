@@ -1,16 +1,17 @@
+"use strict";
+
+
 const express  = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-var cors = require('cors');
+const cors = require('cors');
+const dbConfig = require("./dbconfig");
+
+
 const PORT = "3003";
 const app = express();
-const con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "B3V0XuvG",
-    database:"mydb"
-});
+const con = mysql.createConnection(dbConfig);
 //Sessions
 app.set('trust proxy', 0) // trust first proxy
 app.use(session({
@@ -39,8 +40,8 @@ app.use(cors({
 app.use(bodyParser.json());
 
 //Handle unauthorized requests
-app.use((req,res,next)=>{
-    if(req.url=='/login')
+app.use((req,res,next)=>{    
+    if(!req.path.match(/^\/api\//)||req.url=='/api/login')
         next();
     else{
         let username = req.session.username;
@@ -55,7 +56,7 @@ app.use((req,res,next)=>{
 })
 
 
-app.get("/bargraph",(req,res,next)=>{
+app.get("/api/bargraph",(req,res,next)=>{
     con.query("SELECT * FROM bargraph", function (err, result, fields) {
         if (err)
             res.json({
@@ -68,12 +69,12 @@ app.get("/bargraph",(req,res,next)=>{
                 message: "Success",
                 data: result.map(row=>row.point)
             })
-            next();
+          
       });
     
 });
 
-app.get("/piechart",(req,res,next)=>{
+app.get("/api/piechart",(req,res,next)=>{
     con.query("SELECT * FROM piechart", function (err, result, fields) {
         if (err)
             res.json({
@@ -86,12 +87,11 @@ app.get("/piechart",(req,res,next)=>{
                 message: "Success",
                 data: result.map(row=>row.point)
             })
-            next();
+        
       });
     
 });
-app.post("/login",(req,res,next)=>{
-    console.log(req.body);
+app.post("/api/login",(req,res,next)=>{
     if(!req.body.username||!req.body.password){
         res.status(400);
         res.json({
@@ -131,18 +131,36 @@ app.post("/login",(req,res,next)=>{
         }
     });
 });
-app.use((req,res,next)=>{
-    res.status(404);
 
+app.get("/api/logout",(req,res,next)=>{
+    req.session.destroy();
     res.json({
-        status:404,
-        message:'Not Found'
-    })
-    next();
+        status: 200,
+        message: "Success"
+    });
+});
+
+
+app.use(express.static(__dirname+"/app"));
+
+app.use((req,res,next)=>{
+    if(req.path.match(/^\/api\//i)){
+        res.status(404);
+        res.json({
+            status:404,
+            message:"Not found"
+        })
+    }
+    else
+        next();
+})
+
+app.use((req,res,next)=>{
+    res.sendFile(__dirname+"/app/index.html");
 })
 app.use((req,res,next)=>{
     console.log(`${res.statusCode} ${req.method} ${req.url}`);
-    next();
+   
 })
 app.listen(PORT,()=>{
     console.info(`Server running on port ${PORT}`);
