@@ -1,11 +1,13 @@
-## Available Scripts
+## Install
+```bash
+    npm install
+```
+## Run
+```bash 
+    node .
+```
 
-In the backend directory, you can run:
-
-### `node .`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3003](http://localhost:3003) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+### Note: 
+1. mysql sever needs to be setup and credentials must be updated in dbconfig file
+2. check mysql.sql file for tables and entries
+3. app folder contains the build from frontend
