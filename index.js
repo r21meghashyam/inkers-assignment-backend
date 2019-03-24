@@ -9,7 +9,7 @@ const cors = require('cors');
 const dbConfig = require("./dbconfig");
 
 
-const PORT = "3003";
+const PORT = process.env.PORT || 3000;
 const app = express();
 const con = mysql.createConnection(dbConfig);
 //Sessions
